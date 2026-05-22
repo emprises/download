@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Descargador TikTok Sin Marca de Agua</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#0f0f0f;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:420px;
+    background:#1b1b1b;
+    padding:25px;
+    border-radius:22px;
+    box-shadow:0 0 30px rgba(0,0,0,.5);
+}
+
+.logo{
+    text-align:center;
+    color:white;
+    font-size:30px;
+    font-weight:bold;
+    margin-bottom:25px;
+}
+
+.logo span{
+    color:#ff0050;
+}
+
+.input-box{
+    margin-bottom:15px;
+}
+
+input{
+    width:100%;
+    padding:15px;
+    border:none;
+    outline:none;
+    border-radius:14px;
+    background:#2b2b2b;
+    color:white;
+    font-size:15px;
+}
+
+input::placeholder{
+    color:#aaa;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:14px;
+    background:#ff0050;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.3s;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.status{
+    margin-top:18px;
+    text-align:center;
+    color:white;
+    font-size:14px;
+}
+
+.loader{
+    width:40px;
+    height:40px;
+    border:4px solid #333;
+    border-top:4px solid #ff0050;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:20px auto 0;
+    display:none;
+}
+
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
+    }
+}
+
+@media(max-width:480px){
+
+    .container{
+        padding:20px;
+    }
+
+    .logo{
+        font-size:25px;
+    }
+
+    input,
+    button{
+        padding:14px;
+        font-size:14px;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="logo">
+        Tik<span>Downloader</span>
+    </div>
+
+    <div class="input-box">
+        <input
+            type="text"
+            id="videoUrl"
+            placeholder="Pega el link de TikTok">
+    </div>
+
+    <button onclick="downloadVideo()">
+        Descargar Video
+    </button>
+
+    <div class="loader" id="loader"></div>
+
+    <div class="status" id="status"></div>
+
+</div>
+
+<script>
+
+async function downloadVideo(){
+
+    const url = document.getElementById("videoUrl").value;
+    const status = document.getElementById("status");
+    const loader = document.getElementById("loader");
+
+    if(url === ""){
+
+        status.innerHTML = "Pega un enlace válido";
+        return;
+    }
+
+    loader.style.display = "block";
+
+    status.innerHTML = "Procesando descarga...";
+
+    try{
+
+        // API
+        const apiUrl =
+        `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`;
+
+        // obtener datos
+        const response = await fetch(apiUrl);
+
+        const data = await response.json();
+
+        if(data.data.play){
+
+            const videoUrl = data.data.play;
+
+            status.innerHTML = "Preparando video...";
+
+            // descargar video como blob
+            const videoResponse = await fetch(videoUrl);
+
+            const blob = await videoResponse.blob();
+
+            // crear url local
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            // crear enlace oculto
+            const a = document.createElement("a");
+
+            a.href = blobUrl;
+
+            a.download = "video-tiktok.mp4";
+
+            document.body.appendChild(a);
+
+            // iniciar descarga automática
+            a.click();
+
+            document.body.removeChild(a);
+
+            // limpiar memoria
+            window.URL.revokeObjectURL(blobUrl);
+
+            loader.style.display = "none";
+
+            status.innerHTML = "Descarga iniciada";
+
+        }else{
+
+            loader.style.display = "none";
+
+            status.innerHTML = "No se pudo obtener el video";
+        }
+
+    }catch(error){
+
+        console.log(error);
+
+        loader.style.display = "none";
+
+        status.innerHTML = "Error al descargar";
+    }
+
+}
+
+</script>
+
+</body>
+</html>
